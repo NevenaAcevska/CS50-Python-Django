@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Search</title>
+    <style>
+        div{
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-right: 50px;
+            top: -20px;
+            position: relative;
+        }
+        body > form > input[type=text] {
+            left: 700px;
+            top: 400px;
+            position: relative;
+            border-radius: 50px;
+            border: groove;
+            width: 500px;
+            height: 27px;
+        }
+        body{
+            height: 900px}
+
+
+        #b {
+            width: 130px;
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            top: 420px;
+            left: 878px;
+            border-radius: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<form action="https://www.google.com/search">
+    <input type="text" name="q">
+    <input type="hidden" name="tbm" value="isch">
+
+</form>
+<input type="submit" value="Image Search" id="b">
+<div>
+    <a href="index.html">Google Search</a>
+</div>
+
+</body>
+</html>
