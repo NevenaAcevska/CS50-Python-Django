@@ -1,0 +1,17 @@
+<!-- category_listings.html -->
+{% extends "auctions/layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ category }} Listings</title>
+</head>
+<body>
+    <h1>{{ category }} Listings</h1>
+    <ul>
+    {% for listing in listings %}
+        <li><a href="{% url 'listing_page' listing_id=listing.pk %}">{{ listing.title }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
