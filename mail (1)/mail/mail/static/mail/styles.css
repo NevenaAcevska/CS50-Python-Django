@@ -1,0 +1,52 @@
+textarea {
+    min-height: 400px;
+}
+/* Basic styles for the email list */
+.email-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.email {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.email:hover {
+  background-color: #f0f0f0;
+}
+
+/* Styles for the email view */
+#email-view {
+  display: none;
+  padding: 20px;
+}
+
+/* Styles for buttons */
+button {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+/* Styles for the compose view */
+#compose-view {
+  display: none;
+  padding: 20px;
+}
+
+/* Styles for form inputs */
+.form-group {
+  margin-bottom: 10px;
+}
+
+/* Styles for the logout button */
+#logout-btn {
+  margin-top: 20px;
+}
+.email.unread {
+  font-weight: bold; /* Make the text bold for unread emails */
+  background-color: lightblue; /* Change background color for unread emails */
+  /* Add any other styling you want for unread emails */
+}
