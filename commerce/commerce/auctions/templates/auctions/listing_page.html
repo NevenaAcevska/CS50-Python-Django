@@ -1,0 +1,50 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+    {% if is_winner %}
+    <p>Congratulations! You are the winner of this auction.</p>
+    {% endif %}
+
+    <h1>{{ listing.title }}</h1>
+    <p>{{ listing.description }}</p>
+    <p>Current Price: ${{ listing.current_bid }}</p>
+    {% if listing.image_url %}
+        <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
+    {% endif %}
+
+    {% if not is_closed %}
+        {% if user.is_authenticated %}
+            <form method="post">
+                {% csrf_token %}
+                {% if watchlist %}
+                    <button type="submit" name="remove_watchlist">Remove from Watchlist</button>
+                {% else %}
+                    <button type="submit" name="add_watchlist">Add to Watchlist</button>
+                {% endif %}
+                <input type="number" name="bid_amount" min="{% if listing.current_bid %}{{ listing.current_bid }}{% else %}{{ listing.starting_bid }}{% endif %}" step="0.01" placeholder="Your Bid" >
+                <button type="submit" name="place_bid">Place Bid</button>
+                {% if user == listing.seller %}
+                    <button type="submit" name="close_auction">Close Auction</button>
+                {% endif %}
+            </form>
+            <h2>Comments</h2>
+    <ul>
+    {% for comment in comments %}
+        <li>{{ comment.commenter }} - {{ comment.comment_time }}: {{ comment.comment_text }}</li>
+    {% endfor %}
+    </ul>
+
+    {% if user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+            <textarea name="comment_text" placeholder="Add a comment"></textarea>
+            <button type="submit" name="post_comment">Post Comment</button>
+        </form>
+    {% endif %}
+        {% endif %}
+    {% else %}
+        <p>This auction is closed.</p>
+        <p>Winner: {{ winner }}</p>
+    {% endif %}
+
+
+{% endblock %}
