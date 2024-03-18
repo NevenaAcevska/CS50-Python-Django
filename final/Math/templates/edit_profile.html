@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+    <h1>Edit Profile</h1>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Level: {{ user.level }}</p>
+    <p>Score: {{ user.score }}</p>
+
+     <p>Choose your level:</p>
+  <div>
+    {% for level, label in form.fields.level.choices %}
+      <label>
+        <input type="radio" name="level" value="{{ level }}" {% if level == form.instance.level %}checked{% endif %}>
+        {{ label }}
+      </label>
+    {% endfor %}
+  </div>
+
+
+    <form action="{% url 'edit_profile' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Changes</button>
+    </form>
+
+{% endblock %}

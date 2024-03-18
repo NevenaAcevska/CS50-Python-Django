@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block body %}
+<script>
+  console.log("Script loaded!");
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Attach event listener to the start form submission
+        document.getElementById("start-form").addEventListener("submit", function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+
+            // Call the function to start the countdown
+            startCountdown();
+
+        });
+    });
+
+    function startCountdown() {
+        // Start the countdown from 60 seconds
+        var timeLeft = 60;
+        var timer = setInterval(function() {
+            // Update the time remaining in the UI
+            document.getElementById("time-left").textContent = timeLeft;
+
+            // Decrease the time remaining by 1 second
+            timeLeft--;
+
+            // If the time is up, clear the interval and show the score
+            if (timeLeft === 0) {
+                clearInterval(timer);
+                document.getElementById("question-form").style.display = "none";
+                document.getElementById("score").style.display = "block";
+                // You can calculate and display the score here
+            }
+        }, 1000);
+    }
+</script>
+<p id="timer">Time remaining: <span id="time-left">60</span> seconds</p>
+<p>Click the button below to start the game.</p>
+<form id="start-form" action="{% url 'start_game' %}" method="post">
+    {% csrf_token %}
+    <button id="start-button" type="submit">Start Game</button>
+</form>
+
+{% if question %}
+<p>{{ question.question_text }}</p>
+<form id="question-form" action="{% url 'check_answer' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="question_id" value="{{ question.id }}">
+    <label for="user_answer">Answer:</label>
+    <input type="text" name="user_answer">
+    <button type="submit">Submit Answer</button>
+</form>
+{% endif %}
+<p id="score" style="display: none;">Your score: <span id="user-score">X</span></p>
+
+
+{% endblock %}
