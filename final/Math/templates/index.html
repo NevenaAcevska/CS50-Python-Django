@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+{% block body %}
+<script>
+    var timeLeft = 60;
+    var timer;
+
+    function startCountdown(event) {
+        // Prevent the default action
+        event.preventDefault();
+
+        // Hide the "Start Game" button
+        document.getElementById("start-button").style.display = "none";
+
+        // Reset timeLeft to 60 seconds
+        timeLeft = 60;
+
+        // Update the time remaining in the UI
+        document.getElementById("time-left").textContent = timeLeft;
+
+        // Start the countdown
+        timer = setInterval(function() {
+            // Decrease the time remaining by 1 second
+            timeLeft--;
+
+            if (timeLeft < 0) {
+                clearInterval(timer);
+                   // Fetch user's score when the page loads
+
+                document.getElementById("question-form").style.display = "none";
+                document.getElementById("question-text").style.display = "none";
+                document.getElementById("score").style.display = "block";
+                timeLeft = 60; // Reset the time to 60 when countdown is off
+                document.getElementById("time-left").textContent = timeLeft; // Update the time displayed
+                // Show the "Start Game" button again
+                document.getElementById("start-button").style.display = "block";
+
+            }
+            else {
+                // Update the time remaining in the UI
+                document.getElementById("time-left").textContent = timeLeft;
+                // Show the question form and countdown
+                document.getElementById("question-form").style.display = "block";
+                document.getElementById("score").style.display = "none";
+                document.getElementById("question-text").style.display = "block"; // Ensure question text is displayed
+            }
+        }, 1000);
+
+        fetchQuestion();
+    }
+
+    function fetchQuestion() {
+        fetch("{% url 'generate_question' %}", {
+            method: 'GET'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Question:', data);
+            // Display the question
+            document.getElementById("question-text").textContent = data.question_text;
+            document.getElementById("question-id").value = data.question_id;
+        })
+        .catch(error => {
+            console.error('Error fetching question:', error);
+        });
+    }
+
+  function checkAnswer(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(text || 'Network response was not ok');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response received:', data);
+        if (data.correct) {
+            // Fetch a new question after successful answer submission
+            console.log('Answer submitted successfully!');
+            fetchQuestion();
+
+            // Clear the answer input field
+            form.reset();
+
+            // Update the user's score
+            console.log('Fetching updated score...');
+            fetch("/profile/", {
+                method: 'GET',  // or 'POST' if needed
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',  // Specify that you expect JSON response
+                    'Content-Type': 'application/json' // Specify the content type
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || 'Network response was not ok');
+                    });
+                }
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => {
+                        console.log('Non-JSON response:', text); // Log the response text for debugging
+                        throw new Error('Response is not JSON');
+                    });
+                }
+            })
+            .then(userData => {
+                console.log('User score:', userData.score);
+                // Update the DOM with the new score value
+                document.getElementById("user-score").textContent = userData.score;
+
+                // Adjust user's level based on score (if needed)
+                if (userData.score >= 10 && userData.level === 'beginner') {
+                    document.getElementById("user-level").textContent = 'medium';
+                } else if (userData.score >= 20 && userData.level === 'medium') {
+                    document.getElementById("user-level").textContent = 'pro';
+                } else if (userData.score >= 30 && userData.level === 'pro') {
+                    document.getElementById("user-level").textContent = 'pro';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching updated score:', error);
+            });
+        } else {
+            console.error('Incorrect answer:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting answer:', error);
+    });
+}
+
+
+
+</script>
+
+<p id="timer">Time remaining: <span id="time-left">60</span> seconds</p>
+
+<!-- Display the "Start Game" button by default -->
+<button id="start-button" onclick="startCountdown(event)">Start Game</button>
+
+<p id="question-text"></p>
+<form id="question-form" action="{% url 'check_answer' %}" method="post" style="display: none;" onsubmit="checkAnswer(event)">
+    {% csrf_token %}
+    <input type="hidden" id="question-id" name="question_id">
+    <label for="user_answer">Answer:</label>
+    <input type="text" name="user_answer">
+    <button type="submit">Submit Answer</button>
+</form>
+
+<p id="score">Your score: <span id="user-score">{{ user.score }}</span></p>
+{% endblock %}

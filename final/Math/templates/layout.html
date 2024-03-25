@@ -1,0 +1,77 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Math{% endblock %}</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    </head>
+    <script>
+    fetch("/profile/", {
+        method: 'GET',  // or 'POST' if needed
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',  // Specify that you expect JSON response
+            'Content-Type': 'application/json' // Specify the content type
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('User score:', data.score);
+        console.log('User level:', data.level);
+
+        // Update the DOM with the new score value
+        document.getElementById("user-score").textContent = data.score;
+        document.getElementById("user-level").textContent = data.level;
+    })
+    .catch(error => {
+        console.error('Error fetching updated score:', error);
+    });
+</script>
+
+    <body>
+        <h1>MATH GAME</h1>
+        <div>
+            {% if user.is_authenticated %}
+                Signed in as <strong>{{ user.username }}</strong>.
+                Level: <strong><span id="user-level">{{ user.level }}</span></strong>
+                Score:<strong> <span id="user-score">{{ user.score }}</span></strong>
+            {% else %}
+                Not signed in.
+            {% endif %}
+        </div>
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'index' %}">Home</a>
+            </li>
+        <li class="nav-item">
+                <a class="nav-link" href="{% url 'scoreboard' %}">Scoreboard</a>
+            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                </li>
+
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                </li>
+            {% endif %}
+        </ul>
+        <hr>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>
